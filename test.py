@@ -17,7 +17,6 @@ model.eval()
 
 #testing the model
 loss_fn = nn.CrossEntropyLoss()
-model = NeuralNetwork()
 test_loader = get_data_loader_test(batch_size=128, info=misc_info())
 test_loop(test_loader, model, loss_fn)
 print("Done!")
