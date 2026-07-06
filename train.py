@@ -33,4 +33,4 @@ for t in range(epochs):
 print("Done!")
 
 model = models.vgg16(weights='IMAGENET1K_V1')
-torch.save(model.state_dict(), 'model_weights.pth')
+torch.save(model.state_dict(), 'checkpoints/model_weights.pth')

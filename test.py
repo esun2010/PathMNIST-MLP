@@ -11,7 +11,7 @@ from model import test_loop
 
 #fetching model
 model = models.vgg16()
-model.load_state_dict(torch.load('model_weights.pth', weights_only=True))
+model.load_state_dict(torch.load('checkpoints/model_weights.pth', weights_only=True))
 model.eval()
 
 #testing the model
