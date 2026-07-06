@@ -3,9 +3,9 @@ import torch
 import torch.optim as optim
 import torch.nn as nn
 from torch.utils.data import DataLoader
-import torch.utils.data as data
 import torchvision.transforms as transforms
 import timm
+import torchvision.models as models
 
 #unused
 import matplotlib.pyplot as plt
@@ -23,8 +23,8 @@ print("CUDA available: " + str(torch.cuda.is_available()))
 
 #hyperparameters
 learning_rate = 0.001
-batch_size = 64
-epochs = 10
+batch_size = 128
+epochs = 25
 
 #region info
 info = INFO['pathmnist']
@@ -58,9 +58,9 @@ DataClass = getattr(medmnist, info['python_class'])
 train_dataset = DataClass(split='train', transform=data_transform, download=True)
 test_dataset = DataClass(split='test', transform=data_transform, download=True)
 #data loaders
-train_loader = data.DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-train_loader_at_eval = data.DataLoader(dataset=train_dataset, batch_size=2*batch_size, shuffle=False)
-test_loader = data.DataLoader(dataset=test_dataset, batch_size=2*batch_size, shuffle=False)
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+train_loader_at_eval = DataLoader(dataset=train_dataset, batch_size=2*batch_size, shuffle=False)
+test_loader = DataLoader(dataset=test_dataset, batch_size=2*batch_size, shuffle=False)
 
 #endregion
 
@@ -74,9 +74,9 @@ class NeuralNetwork(nn.Module):
         seq_modules = nn.Sequential(
             nn.Linear(3*28*28, 512),
             nn.ReLU(),
-            nn.Linear(512, 256),
+            nn.Linear(512, 512),
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Linear(512, 128),
             nn.ReLU(),
             nn.Linear(128, n_classes),
         )
@@ -87,10 +87,6 @@ class NeuralNetwork(nn.Module):
         logits = self.seq_modules(x)
         return logits
 
-
-
-model = NeuralNetwork()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 # endregion
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -98,6 +94,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     for batch, (X, y) in enumerate(dataloader):
         # Compute prediction and loss
         pred = model(X)
+        y = y.squeeze(1).long() 
         loss = loss_fn(pred, y)
 
         # Backpropagation
@@ -118,6 +115,7 @@ def test_loop(dataloader, model, loss_fn):
     with torch.no_grad():
         for X, y in dataloader:
             pred = model(X)
+            y = y.squeeze(1).long() 
             test_loss += loss_fn(pred, y).item()
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
@@ -126,9 +124,13 @@ def test_loop(dataloader, model, loss_fn):
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
 loss_fn = nn.CrossEntropyLoss()
-
+model = NeuralNetwork()
+optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train_loop(train_loader, model, loss_fn, optimizer)
     test_loop(test_loader, model, loss_fn)
 print("Done!")
+
+model = models.vgg16(weights='IMAGENET1K_V1')
+torch.save(model.state_dict(), 'model_weights.pth')
