@@ -18,6 +18,10 @@ learning_rate = 0.001
 batch_size = 64
 epochs = 10
 
+#gpu or cpu
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
 #getting the data loaders and misc info
 info = misc_info()
 train_loader, train_loader_at_eval = get_data_loader_train(batch_size=batch_size, info=info)
@@ -25,7 +29,7 @@ train_loader, train_loader_at_eval = get_data_loader_train(batch_size=batch_size
 
 #instantiating the model, loss function, and optimizer
 loss_fn = nn.CrossEntropyLoss()
-model = NeuralNetwork()
+model = NeuralNetwork().to(device)
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # Resume from checkpoint if one exists
@@ -41,8 +45,8 @@ if os.path.exists(checkpoint_path):
 #training loop
 for t in range(start_epoch, start_epoch + epochs):
     print(f"Epoch {t+1}\n-------------------------------")
-    train_loop(train_loader, model, loss_fn, optimizer, batch_size=batch_size)
-    test_loop(train_loader_at_eval, model, loss_fn)
+    train_loop(train_loader, model, loss_fn, optimizer, device, batch_size=batch_size)
+    test_loop(train_loader_at_eval, model, loss_fn, device)
 
 torch.save({
     'epoch': t,

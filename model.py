@@ -84,9 +84,10 @@ class NeuralNetwork(nn.Module):
         logits = self.seq_modules(x)
         return logits
 
-def train_loop(dataloader, model, loss_fn, optimizer,batch_size=128):
+def train_loop(dataloader, model, loss_fn, optimizer, device, batch_size=128):
     size = len(dataloader.dataset)
     for batch, (X, y) in enumerate(dataloader):
+        X, y = X.to(device), y.to(device)
         # Compute prediction and loss
         pred = model(X)
         y = y.squeeze(1).long() 
@@ -101,7 +102,7 @@ def train_loop(dataloader, model, loss_fn, optimizer,batch_size=128):
             loss, current = loss.item(), batch*batch_size + len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-def test_loop(dataloader, model, loss_fn):
+def test_loop(dataloader, model, loss_fn, device):
     model.eval()
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
@@ -109,6 +110,7 @@ def test_loop(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
             pred = model(X)
             y = y.squeeze(1).long() 
             test_loss += loss_fn(pred, y).item()
