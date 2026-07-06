@@ -11,7 +11,8 @@ from model import test_loop
 
 #fetching model
 model = NeuralNetwork()
-model.load_state_dict(torch.load('checkpoints/model_weights.pth', weights_only=True))
+checkpoint = torch.load('checkpoints/model_weights.pth', weights_only=True)
+model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
 #testing the model
