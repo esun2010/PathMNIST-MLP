@@ -9,4 +9,6 @@ Architecture: 3x28x28 -> 512 ->512 -> 128 -> 9
 
 Loss Function: Cross Entropy Loss
 
+Activation Function: ReLU
+
 Optimizer: Adam
