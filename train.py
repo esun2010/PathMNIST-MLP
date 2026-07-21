@@ -44,7 +44,7 @@ if os.path.exists(checkpoint_path):
 
 #training loop
 for t in range(start_epoch, start_epoch + epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
+    print(f"Epoch {t+1}/{start_epoch + epochs}\n-------------------------------")
     train_loop(train_loader, model, loss_fn, optimizer, device, batch_size=batch_size)
     test_loop(train_loader_at_eval, model, loss_fn, device)
 
