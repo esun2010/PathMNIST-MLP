@@ -1,5 +1,6 @@
 # Instructions to run
 IMPORTANT: must create folder named "checkpoints"
+
 Run train.py for training and the test.py for validation.
 # Misc info
 model.py includes model + helper functions. 
